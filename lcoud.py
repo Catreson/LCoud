@@ -1,6 +1,7 @@
 import boto3
 import json
 import os
+import re
 
 
 passy = {}
@@ -14,6 +15,21 @@ def print_files(bucket) -> None:
     print(f'Content of bucket {bucket.name}/a-wing')
     for obj in bucket.objects.filter(Prefix="a-wing/"):
         print(obj.key)
+    print('Successfully printed content\n')
+
+def upload_file(bucket) -> None:
+    inp = input("Path to local file:\t")
+    local_path = os.path.normpath(inp)
+    if not os.path.isfile(local_path):
+        print('File does not exist\n')
+        return
+    dest_path = input("Destination:\t")
+    if not dest_path:
+        dest_path = os.path.basename(local_path)
+    if not dest_path.startswith('a-wing'):
+        dest_path = 'a-wing/' + dest_path
+    bucket.upload_file(local_path, dest_path)
+    print('Successfully uploaded file\n')
 
 if __name__ == "__main__":
     s3 = boto3.resource(service_name='s3')
@@ -21,4 +37,5 @@ if __name__ == "__main__":
     
     print_files(bucket)
 
-    
+    upload_file(bucket)
+
